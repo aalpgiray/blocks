@@ -2705,7 +2705,7 @@ function App() {
             value: b.id,
           }))}
         ></Blocks>
-        <Blocks
+        {/* <Blocks
           dataHeigh={data2.templateAxis1Size}
           dataWidth={data2.templateAxis2Size}
           data={data2.blocks.map((b) => ({
@@ -2748,7 +2748,7 @@ function App() {
             x: b.axis2AbsolutePosition,
             value: b.id,
           }))}
-        ></Blocks>
+        ></Blocks> */}
       </header>
     </div>
   );
