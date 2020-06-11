@@ -9,6 +9,8 @@ import {
   zoomIdentity,
   ZoomTransform,
   ScaleLinear,
+  max,
+  min,
 } from "d3";
 
 export interface BlocksData {
@@ -20,25 +22,64 @@ export interface BlocksData {
 }
 
 export interface BlocksProps {
+  onDataChange: (data: BlocksData[]) => void;
   data: BlocksData[];
   dataWidth: number;
   dataHeigh: number;
 }
 
-export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
+export const Blocks: FC<BlocksProps> = ({
+  data,
+  dataHeigh,
+  dataWidth,
+  onDataChange,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
 
+  const scale = useCallback(
+    (value: number | { valueOf(): number }) => {
+      return scaler(1920, dataWidth)(value);
+    },
+    [dataWidth]
+  );
+
+  const revertScale = useCallback(
+    (value: number | { valueOf(): number }) => {
+      return reverter(1920, dataWidth)(value);
+    },
+    [dataWidth]
+  );
+
+  const boundScale = useMemo(() => {
+    return min([1920 / scale(dataWidth), 1009 / scale(dataHeigh)]) ?? 1;
+  }, [dataWidth, dataHeigh]);
+
   useEffect(() => {
+    const zooming = zoom<SVGSVGElement, any>().on("zoom", function () {
+      select(ref.current).selectAll("g").attr("transform", event.transform);
+    }) as any;
+
     const svg = select(ref.current)
       .append("svg")
       .attr("width", "100%")
       .attr("height", "100%")
+      .call(zooming)
       .call(
-        zoom<SVGSVGElement, any>().on("zoom", function () {
-          svg.attr("transform", event.transform);
-        }) as any
+        zooming.transform,
+        zoomIdentity
+          .translate(
+            1920 / 2 - scale(dataWidth / 2) * boundScale,
+            1009 / 2 - scale(dataHeigh / 2) * boundScale
+          )
+          .scale(boundScale)
       )
-      .append("g");
+      .append("g")
+      .attr(
+        "transform",
+        `translate(${1920 / 2 - scale(dataWidth / 2) * boundScale},${
+          1009 / 2 - scale(dataHeigh / 2) * boundScale
+        }) scale(${boundScale})`
+      );
 
     return () => {
       svg.remove();
@@ -49,21 +90,10 @@ export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
     drawBlocks();
     // drawText();
     enableDrag();
+    return () => {
+      select(ref.current).selectAll("rect").remove();
+    };
   }, [data]);
-
-  const scale = useCallback(
-    (value: number | { valueOf(): number }) => {
-      return scaler(1000, dataWidth)(value);
-    },
-    [dataWidth]
-  );
-
-  const revertScale = useCallback(
-    (value: number | { valueOf(): number }) => {
-      return reverter(1000, dataWidth)(value);
-    },
-    [dataWidth]
-  );
 
   const drawText = useCallback(() => {
     const fontSize = 12;
@@ -112,6 +142,8 @@ export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
         const svg = select(ref.current).selectAll("g");
 
         svg.selectAll("circle").remove();
+
+        onDataChange(svg.selectAll<SVGGElement, BlocksData>("rect").data());
       })
       .on("drag", function () {
         let gridX = round(event.x, scale(resolution)),
@@ -197,7 +229,7 @@ export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
           .append("circle")
           .attr("cx", (d) => d.x)
           .attr("cy", (d) => d.y)
-          .attr("r", 2)
+          .attr("r", scale(0.035))
           .style("fill", "#01579b");
 
         if (snaps[0]) {
@@ -206,8 +238,16 @@ export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
         }
 
         selectedBlock
-          .attr("x", gridX)
-          .attr("y", gridY)
+          .data([
+            {
+              ...selectedBlockData,
+              x: revertScale(gridX),
+              y: revertScale(gridY),
+            },
+          ])
+          .attr("x", (d) => scale(d.x))
+          .attr("y", (d) => scale(d.y))
+
           .style("fill", "#B8DE00");
       });
 
@@ -216,7 +256,7 @@ export const Blocks: FC<BlocksProps> = ({ data, dataHeigh, dataWidth }) => {
     }
 
     dragHandler(select(ref.current).selectAll("rect"));
-  }, []);
+  }, [data]);
 
   const drawBlocks = useCallback(() => {
     const svg = select(ref.current).selectAll("g");
