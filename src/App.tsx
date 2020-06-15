@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import { Blocks } from "./Blocks";
-import { BetterBlocks } from "./BetterBlocks";
+import { BetterBlocks } from "./2DModel/BetterBlocks";
 
 const data = {
   templateAxis1Size: 7.25,
@@ -3301,6 +3301,28 @@ function App() {
             value: b.id,
           }))}
         ></BetterBlocks>
+        {/* <Blocks
+          onDataChange={(data) =>
+            setState(
+              data.map((d) => ({
+                axis1AbsolutePosition: d.y,
+                axis2AbsolutePosition: d.x,
+                axis1Size: d.height,
+                axis2Size: d.width,
+                id: d.value,
+              }))
+            )
+          }
+          dataHeigh={data.templateAxis1Size}
+          dataWidth={data.templateAxis2Size}
+          data={state.map((b) => ({
+            height: b.axis1Size,
+            width: b.axis2Size,
+            y: b.axis1AbsolutePosition,
+            x: b.axis2AbsolutePosition,
+            value: b.id,
+          }))}
+        ></Blocks> */}
         {/* <Blocks
           dataHeigh={data2.templateAxis1Size}
           dataWidth={data2.templateAxis2Size}
