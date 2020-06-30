@@ -1,6 +1,7 @@
 import { BlocksData } from "../types/BlocksData";
 import { IPosition } from "../types/IPosition";
 import { checkSnap } from "../helpers/checkSnap";
+
 export const useSnaping = (snapPoints: IPosition[]) => {
   return ({ height, width, x, y }: Omit<BlocksData, "value">) => {
     const snapBuffer = 5;
@@ -55,6 +56,7 @@ export const useSnaping = (snapPoints: IPosition[]) => {
         y: snap.y - height,
       })),
     ];
+
     return {
       snapPoints: snapCircles,
       snapPositions: snaps,

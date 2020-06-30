@@ -133,12 +133,12 @@ export const Blocks: FC<BlocksProps> = ({
       .style("stroke", "#FFFFFF");
 
     select(node).selectAll("line").remove();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     data,
     firstBlockDeviders.horizontalLines,
     firstBlockDeviders.verticalLines,
+    node,
+    scale,
   ]);
 
   useEffect(() => {

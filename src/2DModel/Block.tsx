@@ -63,7 +63,9 @@ export const Block: FC<BlockProps> = ({
       x: gridX,
       y: gridY,
     });
-    setSnapedAt(snapPoints.slice(0, 1));
+
+    setSnapedAt(snapPoints);
+
     position.current = {
       x: snapPositions.length > 0 ? snapPositions[0].x : gridX,
       y: snapPositions.length > 0 ? snapPositions[0].y : gridY,
