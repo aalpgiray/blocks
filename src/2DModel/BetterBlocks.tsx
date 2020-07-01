@@ -1,4 +1,4 @@
-import React, { FC, useRef, useCallback } from "react";
+import React, { FC, useRef, useCallback, useMemo, useState } from "react";
 import { BlocksData } from "../types/BlocksData";
 import { IPosition } from "../types/IPosition";
 import { Block } from "./Block";
@@ -8,6 +8,8 @@ import { useRevertScale } from "../hooks/useRevertScale";
 import { useTransform } from "../hooks/useTransform";
 import { useZoom } from "../hooks/useZoom";
 import { useClientBounds } from "../hooks/useClientBounds";
+import { Cutter, CutterPositions } from "./Cutter";
+import { buffer } from "d3";
 
 export interface BetterBlocksProps {
   onDataChange: (data: BlocksData[]) => void;
@@ -38,6 +40,19 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
     dataHeigh
   );
 
+  const boundPositions: [IPosition, IPosition] = useMemo(() => {
+    const topLeftCorner = {
+      x: (0 - transform.x) / transform.k,
+      y: (0 - transform.y) / transform.k,
+    };
+    const bottomRightCorner = {
+      x: (bound.width - transform.x) / transform.k,
+      y: (bound.height - transform.y) / transform.k,
+    };
+
+    return [topLeftCorner, bottomRightCorner];
+  }, [transform, bound]);
+
   useZoom(setTransform, svgRef, transform);
 
   const onPositionChange = useCallback(
@@ -55,6 +70,18 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
     [data, onDataChange, revertScale]
   );
 
+  const blockRects = useMemo(() => {
+    return data.map<[IPosition, IPosition]>((d) => [
+      { x: scale(d.x), y: scale(d.y) },
+      { x: scale(d.x + d.width), y: scale(d.y + d.height) },
+    ]);
+  }, [data, scale]);
+
+  const [cutLines, setCutLines] = useState<CutterPositions>({
+    verticalCutters: [30],
+    horizontalCutters: [],
+  });
+
   return (
     <div ref={divRef} style={{ height: "100vh", width: "100vw" }}>
       <svg ref={svgRef} width="100%" height="100%">
@@ -62,11 +89,14 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
           transform={`translate(${transform.x},${transform.y}) scale(${transform.k})`}
           ref={gRef}
         >
-          {data.map((d) => (
+          {data.map((d, i) => (
             <Block
               snapPoints={corners}
               onPositionChange={onPositionChange}
               text={d.value.replace(/.+(B.+)_.+/g, "$1")}
+              isSelected={["B-085", "B-082", "B-079"].some(
+                (b) => d.value.replace(/.+(B.+)_.+/g, "$1") === b
+              )}
               key={d.value}
               id={d.value}
               x={scale(d.x)}
@@ -75,6 +105,12 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
               height={scale(d.height)}
             />
           ))}
+          <Cutter
+            rects={blockRects.slice(0, 1)}
+            bounds={boundPositions}
+            cutters={cutLines}
+            onCuttersChange={setCutLines}
+          />
         </g>
       </svg>
     </div>

@@ -18,8 +18,9 @@ export interface BlockProps {
   width: number;
   height: number;
   text: string;
-  onPositionChange: (id: string, position: IPosition) => void;
+  isSelected?: boolean;
   snapPoints?: (IPosition & { id: string })[];
+  onPositionChange: (id: string, position: IPosition) => void;
 }
 
 export const Block: FC<BlockProps> = ({
@@ -30,6 +31,7 @@ export const Block: FC<BlockProps> = ({
   width,
   id,
   snapPoints,
+  isSelected = false,
   onPositionChange,
 }) => {
   const blockRef = useRef(null);
@@ -106,7 +108,7 @@ export const Block: FC<BlockProps> = ({
   return (
     <g ref={blockRef}>
       <rect
-        fill={isDragging ? "#B8D006" : "#B8DEE690"}
+        fill={isDragging ? "#B8D006" : isSelected ? "#B8DEE690" : "#B8DEE630"}
         stroke="white"
         width={width}
         height={height}
