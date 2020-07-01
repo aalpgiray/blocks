@@ -4,10 +4,18 @@ import { intersectRectWithLine } from "./intersectRectWithLine";
 import { isPointInRect } from "./isPointInRect";
 import { compareHorizontalDistance, compareVerticalDistance } from "./distance";
 import { extractCorners } from "./extractCorners";
-import { isEmpty } from "lodash";
+import { isEmpty, round } from "lodash";
+import { PositionTuple } from "../types/PositionTuple";
 
-export const cutRectWithLines = (rect: [IPosition, IPosition]) => (
-  cutLines: [IPosition, IPosition][]
+const pointRounder = (precision: number) => (
+  f: IPosition
+): { x: number; y: number } => ({
+  x: round(f.x, precision),
+  y: round(f.y, precision),
+});
+
+export const cutRectWithLines = (rect: PositionTuple) => (
+  cutLines: PositionTuple[]
 ) => {
   const rectCorners = extractCorners(rect);
 
@@ -25,15 +33,19 @@ export const cutRectWithLines = (rect: [IPosition, IPosition]) => (
     ...rectCorners,
     ...rectIntersections,
     ...lineCrosingsWithinRect,
-  ];
+  ].map<IPosition>(pointRounder(3));
 
-  return createRectWithPoints(rect[0])(allCorners);
+  return createRectWithPoints(pointRounder(3)(rect[0]))(allCorners)();
 };
 
 export const createRectWithPoints = (startPoint: IPosition) => (
   otherPositions: IPosition[]
-) => {
-  const rects: [IPosition, IPosition][] = [];
+) => (visited: Set<IPosition> = new Set()) => {
+  const rects: PositionTuple[] = [];
+
+  if (visited.has(startPoint)) {
+    return rects;
+  }
 
   const firstPointOnTheRightSideThatSharesTheSameY = findFirstPointOnTheRightSideThatSharesTheSameY(
     startPoint
@@ -48,8 +60,20 @@ export const createRectWithPoints = (startPoint: IPosition) => (
       rects.push([startPoint, firstPointOnUnderneathThatSharesTheSameX]);
     }
 
+    visited.add(startPoint);
+
     createRectWithPoints(firstPointOnTheRightSideThatSharesTheSameY)(
       otherPositions
+    )(visited).forEach((r) => rects.push(r));
+  }
+
+  const pointUnderneathOfStart = findFirstPointOnUnderneathThatSharesTheSameX(
+    startPoint
+  )(otherPositions);
+
+  if (pointUnderneathOfStart !== null) {
+    createRectWithPoints(pointUnderneathOfStart)(otherPositions)(
+      visited
     ).forEach((r) => rects.push(r));
   }
 

@@ -6,12 +6,10 @@ import {
   isPointIsUnderneath,
   findFirstPointOnUnderneathThatSharesTheSameX,
 } from "./cutRectWithLines";
-import { start } from "repl";
-import { compareHorizontalDistance } from "./distance";
-import { IPosition } from "../types/IPosition";
+import { PositionTuple } from "../types/PositionTuple";
 
 describe("cutRectWithLines", function () {
-  it("returns empty rect object where is no cutter", () => {
+  test("returns empty rect object where is no cutter", () => {
     expect(
       cutRectWithLines([
         { x: 0, y: 0 },
@@ -20,13 +18,13 @@ describe("cutRectWithLines", function () {
     ).toEqual([]);
   });
 
-  it("returns two rects when there is only one cutter", () => {
-    const rect: [IPosition, IPosition] = [
+  test("returns two rects when there is only one cutter", () => {
+    const rect: PositionTuple = [
       { x: 0, y: 0 },
       { x: 10, y: 10 },
     ];
 
-    const cutters: [IPosition, IPosition][] = [
+    const cutters: PositionTuple[] = [
       [
         { x: 5, y: 0 },
         { x: 5, y: 10 },
@@ -46,6 +44,35 @@ describe("cutRectWithLines", function () {
       ],
     ]);
   });
+
+  test("should return two rect", () => {
+    const rect: PositionTuple = [
+      { x: 1814.0206185567013, y: 373.8144329896907 },
+      { x: 1920, y: 494.639175257732 },
+    ];
+
+    const cutLines: PositionTuple[] = [
+      [
+        { y: 290.7113402061856, x: 1868 },
+        { y: 542.9613402061856, x: 1868 },
+      ],
+    ];
+
+    const result = cutRectWithLines(rect)(cutLines);
+
+    const expected: PositionTuple[] = [
+      [
+        { x: 1814.021, y: 373.814 },
+        { x: 1868, y: 494.639 },
+      ],
+      [
+        { x: 1868, y: 373.814 },
+        { x: 1920, y: 494.639 },
+      ],
+    ];
+
+    expect(result).toEqual(expected);
+  });
 });
 
 describe("createRectWithPoints", () => {
@@ -57,7 +84,7 @@ describe("createRectWithPoints", () => {
       { x: 10, y: 10 },
     ];
 
-    const result = createRectWithPoints(startPoint)(points);
+    const result = createRectWithPoints(startPoint)(points)();
 
     expect(result).toEqual([
       [
@@ -77,7 +104,7 @@ describe("createRectWithPoints", () => {
       { x: 20, y: 10 },
     ];
 
-    const result = createRectWithPoints(startPoint)(points);
+    const result = createRectWithPoints(startPoint)(points)();
 
     expect(result).toEqual([
       [

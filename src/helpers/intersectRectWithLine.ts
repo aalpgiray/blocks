@@ -1,9 +1,10 @@
 import { IPosition } from "../types/IPosition";
 import { extractEdges } from "./extractEdges";
 import { intersectLineWithLine } from "./intersection";
+import { PositionTuple } from "../types/PositionTuple";
 
-export const intersectRectWithLine = (rect: [IPosition, IPosition]) => (
-  line: [IPosition, IPosition]
+export const intersectRectWithLine = (rect: PositionTuple) => (
+  line: PositionTuple
 ) => {
   const rectEdges = extractEdges(rect);
 

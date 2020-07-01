@@ -1,17 +1,9 @@
-import React, {
-  FC,
-  useMemo,
-  Fragment,
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
-import { IPosition } from "../types/IPosition";
+import React, { FC, useMemo, useState, useEffect, useCallback } from "react";
 import { intersectLineWithLine } from "../helpers/intersection";
 import { CutterBlade } from "./CutterBlade";
 import { extractEdges } from "../helpers/extractEdges";
 import { cutRectWithLines } from "../helpers/cutRectWithLines";
+import { PositionTuple } from "../types/PositionTuple";
 
 export interface CutterPositions {
   verticalCutters: number[];
@@ -19,8 +11,8 @@ export interface CutterPositions {
 }
 
 export interface CutterProps {
-  bounds: [IPosition, IPosition];
-  rects: [IPosition, IPosition][];
+  bounds: PositionTuple;
+  rects: PositionTuple[];
   cutters: CutterPositions;
   onCuttersChange: (cutters: CutterPositions) => void;
 }
@@ -32,7 +24,7 @@ export const Cutter: FC<CutterProps> = ({
   onCuttersChange,
 }) => {
   const verticalLines = useMemo(() => {
-    return verticalCutters.map<[IPosition, IPosition]>((position, index) => [
+    return verticalCutters.map<PositionTuple>((position, index) => [
       {
         y: bounds[0].y,
         x: position,
@@ -45,7 +37,7 @@ export const Cutter: FC<CutterProps> = ({
   }, [bounds, verticalCutters]);
 
   const horizontalLines = useMemo(() => {
-    return horizontalCutters.map<[IPosition, IPosition]>((position, index) => [
+    return horizontalCutters.map<PositionTuple>((position, index) => [
       {
         y: position,
         x: bounds[0].x,
@@ -62,10 +54,9 @@ export const Cutter: FC<CutterProps> = ({
     verticalLines,
   ]);
 
-  const rectLines = useMemo(
-    () => rects.flatMap<[IPosition, IPosition]>(extractEdges),
-    [rects]
-  );
+  const rectLines = useMemo(() => rects.flatMap<PositionTuple>(extractEdges), [
+    rects,
+  ]);
 
   const intersections = useMemo(() => {
     return cutLines.flatMap((cutLine) => {
@@ -78,7 +69,7 @@ export const Cutter: FC<CutterProps> = ({
     });
   }, [cutLines, rectLines]);
 
-  const [boxes, setBoxes] = useState<[IPosition, IPosition][]>([]);
+  const [boxes, setBoxes] = useState<PositionTuple[]>([]);
 
   useEffect(() => {
     const cutHandler = () => {
@@ -97,7 +88,7 @@ export const Cutter: FC<CutterProps> = ({
   }, [cutLines, onCuttersChange, rects]);
 
   const handleCutterBladeMove = useCallback(
-    (id: number, pos: [IPosition, IPosition]) => {
+    (id: number, pos: PositionTuple) => {
       const _cutLines = cutLines.map((cutLine, index) => {
         if (id === index) {
           return pos;

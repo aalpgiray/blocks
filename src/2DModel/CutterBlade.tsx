@@ -2,19 +2,18 @@ import React, {
   FC,
   useRef,
   useState,
-  useMemo,
   useEffect,
   useCallback,
   ChangeEvent,
 } from "react";
-import { IPosition } from "../types/IPosition";
 import { round } from "../helpers/round";
 import { select, event, drag } from "d3";
+import { PositionTuple } from "../types/PositionTuple";
 
 export interface CutterBladeProps {
   id: number;
-  position: [IPosition, IPosition];
-  onPositionChange: (id: number, position: [IPosition, IPosition]) => void;
+  position: PositionTuple;
+  onPositionChange: (id: number, position: PositionTuple) => void;
 }
 
 export const CutterBlade: FC<CutterBladeProps> = ({
@@ -24,15 +23,12 @@ export const CutterBlade: FC<CutterBladeProps> = ({
 }) => {
   const cutterBladeRef = useRef(null);
 
-  const [position, setPosition] = useState<[IPosition, IPosition]>([
+  const [position, setPosition] = useState<PositionTuple>([
     startPosition,
     endPosition,
   ]);
 
-  const positionRef = useRef<[IPosition, IPosition]>([
-    startPosition,
-    endPosition,
-  ]);
+  const positionRef = useRef<PositionTuple>([startPosition, endPosition]);
 
   const [isDragging, setIsDragging] = useState(false);
 

@@ -1,9 +1,9 @@
-import { IPosition } from "../types/IPosition";
 import { eliminateMinusZero } from "./eliminateMinusZero";
 import { between } from "./between";
+import { PositionTuple } from "../types/PositionTuple";
 
-export const intersectLineWithLine = (line1: [IPosition, IPosition]) => (
-  line2: [IPosition, IPosition]
+export const intersectLineWithLine = (line1: PositionTuple) => (
+  line2: PositionTuple
 ) => {
   var x1 = line1[0].x,
     x2 = line1[1].x,

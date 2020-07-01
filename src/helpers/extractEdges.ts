@@ -1,36 +1,5 @@
-import { IPosition } from "../types/IPosition";
-export const extractEdges = (
-  rect: [IPosition, IPosition]
-): [
-  [
-    IPosition,
-    {
-      x: number;
-      y: number;
-    }
-  ],
-  [
-    {
-      x: number;
-      y: number;
-    },
-    IPosition
-  ],
-  [
-    IPosition,
-    {
-      x: number;
-      y: number;
-    }
-  ],
-  [
-    {
-      x: number;
-      y: number;
-    },
-    IPosition
-  ]
-] => [
+import { PositionTuple } from "../types/PositionTuple";
+export const extractEdges = (rect: PositionTuple): PositionTuple[] => [
   [rect[0], { x: rect[1].x, y: rect[0].y }],
   [{ x: rect[1].x, y: rect[0].y }, rect[1]],
   [rect[1], { x: rect[0].x, y: rect[1].y }],

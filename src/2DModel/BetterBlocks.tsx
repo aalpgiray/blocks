@@ -10,6 +10,7 @@ import { useZoom } from "../hooks/useZoom";
 import { useClientBounds } from "../hooks/useClientBounds";
 import { Cutter, CutterPositions } from "./Cutter";
 import { buffer } from "d3";
+import { PositionTuple } from "../types/PositionTuple";
 
 export interface BetterBlocksProps {
   onDataChange: (data: BlocksData[]) => void;
@@ -40,7 +41,7 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
     dataHeigh
   );
 
-  const boundPositions: [IPosition, IPosition] = useMemo(() => {
+  const boundPositions: PositionTuple = useMemo(() => {
     const topLeftCorner = {
       x: (0 - transform.x) / transform.k,
       y: (0 - transform.y) / transform.k,
@@ -71,15 +72,15 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
   );
 
   const blockRects = useMemo(() => {
-    return data.map<[IPosition, IPosition]>((d) => [
+    return data.map<PositionTuple>((d) => [
       { x: scale(d.x), y: scale(d.y) },
       { x: scale(d.x + d.width), y: scale(d.y + d.height) },
     ]);
   }, [data, scale]);
 
   const [cutLines, setCutLines] = useState<CutterPositions>({
-    verticalCutters: [30],
-    horizontalCutters: [],
+    verticalCutters: [30, 60, 90],
+    horizontalCutters: [30, 130, 230],
   });
 
   return (
@@ -94,9 +95,6 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
               snapPoints={corners}
               onPositionChange={onPositionChange}
               text={d.value.replace(/.+(B.+)_.+/g, "$1")}
-              isSelected={["B-085", "B-082", "B-079"].some(
-                (b) => d.value.replace(/.+(B.+)_.+/g, "$1") === b
-              )}
               key={d.value}
               id={d.value}
               x={scale(d.x)}
@@ -106,7 +104,7 @@ export const BetterBlocks: FC<BetterBlocksProps> = ({
             />
           ))}
           <Cutter
-            rects={blockRects.slice(0, 1)}
+            rects={blockRects}
             bounds={boundPositions}
             cutters={cutLines}
             onCuttersChange={setCutLines}
