@@ -45,6 +45,45 @@ describe("cutRectWithLines", function () {
     ]);
   });
 
+  test("returns fout rects when there two cutter crossing each other over rect", () => {
+    const rect: PositionTuple = [
+      { x: 0, y: 0 },
+      { x: 20, y: 20 },
+    ];
+
+    const cutters: PositionTuple[] = [
+      [
+        { x: 10, y: 0 },
+        { x: 10, y: 20 },
+      ],
+      [
+        { x: 0, y: 10 },
+        { x: 20, y: 10 },
+      ],
+    ];
+
+    const result = cutRectWithLines(rect)(cutters);
+
+    expect(result).toEqual([
+      [
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ],
+      [
+        { x: 10, y: 0 },
+        { x: 20, y: 10 },
+      ],
+      [
+        { x: 10, y: 10 },
+        { x: 20, y: 20 },
+      ],
+      [
+        { x: 0, y: 10 },
+        { x: 10, y: 20 },
+      ],
+    ]);
+  });
+
   test("should return two rect", () => {
     const rect: PositionTuple = [
       { x: 1814.0206185567013, y: 373.8144329896907 },
